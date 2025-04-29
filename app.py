@@ -3,7 +3,7 @@ import json
 
 st.set_page_config(
     page_title="OMR-Style Multi-Exam System",
-    page_icon="favicon.png", 
+    page_icon="📝", 
     layout="centered",
 )
 
