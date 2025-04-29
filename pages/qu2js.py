@@ -3,7 +3,7 @@ import json
 
 st.set_page_config(
     page_title="OMR-MAKE-JSON",
-    page_icon="favicon2.jpg", 
+    page_icon="./favicon.jpg", 
     layout="centered",
 )
 
