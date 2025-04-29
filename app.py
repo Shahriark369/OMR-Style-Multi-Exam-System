@@ -1,6 +1,12 @@
 import streamlit as st
 import json
 
+st.set_page_config(
+    page_title="OMR-Style Multi-Exam System",
+    page_icon="favicon.png", 
+    layout="centered",
+)
+
 # Load correct answers
 with open("answers.json", "r") as f:
     all_answers = json.load(f)
