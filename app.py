@@ -7,16 +7,17 @@ st.set_page_config(
     layout="centered",
 )
 
-# Custom CSS for card-style options
+# Custom CSS for card-style buttons
 st.markdown("""
     <style>
     .option-card {
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 12px;
+        padding: 20px;
         margin: 5px;
         text-align: center;
         cursor: pointer;
+        font-size: 18px;
         transition: 0.3s;
     }
     .option-card:hover {
@@ -48,36 +49,39 @@ selected_exam = st.selectbox("Select Exam", exam_list)
 correct_answers = all_answers[selected_exam]
 total_questions = len(correct_answers)
 submitted_key = f"submitted_{selected_exam}"
-
-# Check if this exam has been submitted before
 submitted = st.session_state.get(submitted_key, False)
 
 # User answers dictionary
 user_answers = {}
 
-# Render OMR form
 st.header(f"🧾 {selected_exam.replace('_', ' ').title()}")
 
 for i in range(1, total_questions + 1):
     q_str = str(i)
     q_key = f"{selected_exam}_Q{q_str}"
 
-    # Ensure initial value
+    # Initialize answer if not already set
     if q_key not in st.session_state:
         st.session_state[q_key] = None
 
     user_answers[q_str] = st.session_state[q_key]
 
+    st.markdown(f"**Question {q_str}**")
+
     if not submitted:
-        st.markdown(f"**Question {q_str}**")
         cols = st.columns(4)
         options = ["A", "B", "C", "D"]
+
         for idx, opt in enumerate(options):
-            selected = st.session_state[q_key] == opt
-            card_class = "option-card selected" if selected else "option-card"
-            if cols[idx].button(f"{opt}", key=f"{q_key}_{opt}"):
+            is_selected = st.session_state[q_key] == opt
+            card_class = "option-card selected" if is_selected else "option-card"
+
+            if cols[idx].button(" ", key=f"{q_key}_{opt}"):
                 st.session_state[q_key] = opt
-            cols[idx].markdown(f"<div class='{card_class}'>{opt}</div>", unsafe_allow_html=True)
+
+            cols[idx].markdown(
+                f"<div class='{card_class}'>{opt}</div>", unsafe_allow_html=True
+            )
     else:
         user_choice = st.session_state[q_key]
         correct = correct_answers[q_str]
@@ -90,8 +94,6 @@ for i in range(1, total_questions + 1):
 if not submitted:
     if st.button("Submit"):
         st.session_state[submitted_key] = True
-
-        # Score calculation
         score = 0
         wrong = []
 
