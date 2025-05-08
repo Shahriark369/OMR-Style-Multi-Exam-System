@@ -7,35 +7,6 @@ st.set_page_config(
     layout="centered",
 )
 
-# Custom CSS for card-style buttons
-st.markdown("""
-    <style>
-    .option-card {
-        border: 2px solid #ccc;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 5px;
-        text-align: center;
-        cursor: pointer;
-        font-size: 18px;
-        transition: 0.3s;
-    }
-    .option-card:hover {
-        border-color: #4CAF50;
-        background-color: #f0fff0;
-    }
-    .selected {
-        border-color: #4CAF50 !important;
-        background-color: #e6ffe6 !important;
-        font-weight: bold;
-    }
-    .disabled {
-        pointer-events: none;
-        opacity: 0.6;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # Load correct answers
 with open("answers.json", "r") as f:
     all_answers = json.load(f)
@@ -56,32 +27,23 @@ user_answers = {}
 
 st.header(f"🧾 {selected_exam.replace('_', ' ').title()}")
 
+# Render each question
 for i in range(1, total_questions + 1):
     q_str = str(i)
     q_key = f"{selected_exam}_Q{q_str}"
 
-    # Initialize answer if not already set
     if q_key not in st.session_state:
         st.session_state[q_key] = None
 
     user_answers[q_str] = st.session_state[q_key]
 
-    st.markdown(f"**Question {q_str}**")
-
     if not submitted:
-        cols = st.columns(4)
-        options = ["A", "B", "C", "D"]
-
-        for idx, opt in enumerate(options):
-            is_selected = st.session_state[q_key] == opt
-            card_class = "option-card selected" if is_selected else "option-card"
-
-            if cols[idx].button(" ", key=f"{q_key}_{opt}"):
-                st.session_state[q_key] = opt
-
-            cols[idx].markdown(
-                f"<div class='{card_class}'>{opt}</div>", unsafe_allow_html=True
-            )
+        st.radio(
+            label=f"Question {q_str}",
+            options=["A", "B", "C", "D"],
+            key=q_key,
+            horizontal=True
+        )
     else:
         user_choice = st.session_state[q_key]
         correct = correct_answers[q_str]
@@ -90,7 +52,7 @@ for i in range(1, total_questions + 1):
             f"**Question {q_str}**: You selected **{user_choice}**, correct answer is **{correct}** {result_icon}"
         )
 
-# Submit button
+# Submit logic
 if not submitted:
     if st.button("Submit"):
         st.session_state[submitted_key] = True
@@ -107,7 +69,6 @@ if not submitted:
                 wrong.append(qno)
 
         st.success(f"🎯 You got {score} out of {total_questions} correct.")
-
         if wrong:
             st.error("📛 Incorrect or Unanswered Questions:")
             st.write(", ".join(wrong))
