@@ -11,9 +11,33 @@ st.set_page_config(
 with open("answers.json", "r") as f:
     all_answers = json.load(f)
 
+# Custom CSS for option boxes
+st.markdown("""
+    <style>
+    .option-box {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 5px;
+        text-align: center;
+        font-size: 16px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    .option-box:hover {
+        background-color: #f0f0f0;
+        border-color: #4CAF50;
+    }
+    .selected {
+        background-color: #e6ffe6;
+        border-color: #4CAF50;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("📝 OMR-Style Multi-Exam System")
 
-# Choose an exam
 exam_list = list(all_answers.keys())
 selected_exam = st.selectbox("Select Exam", exam_list)
 
@@ -22,7 +46,6 @@ total_questions = len(correct_answers)
 submitted_key = f"submitted_{selected_exam}"
 submitted = st.session_state.get(submitted_key, False)
 
-# User answers dictionary
 user_answers = {}
 
 st.header(f"🧾 {selected_exam.replace('_', ' ').title()}")
@@ -37,13 +60,21 @@ for i in range(1, total_questions + 1):
 
     user_answers[q_str] = st.session_state[q_key]
 
+    st.markdown(f"**Question {q_str}**")
+
     if not submitted:
-        st.radio(
-            label=f"Question {q_str}",
-            options=["A", "B", "C", "D"],
-            key=q_key,
-            horizontal=True
-        )
+        cols = st.columns(4)
+        options = ["A", "B", "C", "D"]
+
+        for idx, opt in enumerate(options):
+            is_selected = st.session_state[q_key] == opt
+            box_class = "option-box selected" if is_selected else "option-box"
+
+            if cols[idx].button(f"{opt}", key=f"{q_key}_{opt}"):
+                st.session_state[q_key] = opt
+
+            # Show styled box
+            cols[idx].markdown(f"<div class='{box_class}'>{opt}</div>", unsafe_allow_html=True)
     else:
         user_choice = st.session_state[q_key]
         correct = correct_answers[q_str]
